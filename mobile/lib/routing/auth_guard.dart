@@ -26,18 +26,24 @@ class AuthGuard extends AutoRouteGuard {
       if (res == null || res.authStatus != true) {
         // If the access token is invalid, take user back to login
         _log.fine('User token is invalid. Redirecting to login');
-        router.replaceAll([const LoginRoute()]);
+
+        // daipv
+        router.replaceAll([const LoginV1Route()]);
       }
     } on StoreKeyNotFoundException catch (_) {
       // If there is no access token, take us to the login page
       _log.warning('No access token in the store.');
-      router.replaceAll([const LoginRoute()]);
+
+      // daipv
+      router.replaceAll([const LoginV1Route()]);
       return;
     } on ApiException catch (e) {
       // On an unauthorized request, take us to the login page
       if (e.code == HttpStatus.unauthorized) {
         _log.warning("Unauthorized access token.");
-        router.replaceAll([const LoginRoute()]);
+
+        // daipv
+        router.replaceAll([const LoginV1Route()]);
         return;
       }
     } catch (e) {

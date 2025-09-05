@@ -42,6 +42,7 @@ import 'package:immich_mobile/pages/common/headers_settings.page.dart';
 import 'package:immich_mobile/pages/common/native_video_viewer.page.dart';
 import 'package:immich_mobile/pages/common/settings.page.dart';
 import 'package:immich_mobile/pages/common/splash_screen.page.dart';
+import 'package:immich_mobile/pages/common/splash_screen_v1.page.dart';
 import 'package:immich_mobile/pages/common/tab_controller.page.dart';
 import 'package:immich_mobile/pages/common/tab_shell.page.dart';
 import 'package:immich_mobile/pages/editing/crop.page.dart';
@@ -64,6 +65,7 @@ import 'package:immich_mobile/pages/library/shared_link/shared_link_edit.page.da
 import 'package:immich_mobile/pages/library/trash.page.dart';
 import 'package:immich_mobile/pages/login/change_password.page.dart';
 import 'package:immich_mobile/pages/login/login.page.dart';
+import 'package:immich_mobile/pages/login/login_v1.page.dart';
 import 'package:immich_mobile/pages/onboarding/permission_onboarding.page.dart';
 import 'package:immich_mobile/pages/photos/memory.page.dart';
 import 'package:immich_mobile/pages/photos/photos.page.dart';
@@ -160,9 +162,13 @@ class AppRouter extends RootStackRouter {
 
   @override
   late final List<AutoRoute> routes = [
-    AutoRoute(page: SplashScreenRoute.page, initial: true),
+    // daipv
+    AutoRoute(page: SplashScreenRoute.page, initial: false),
+    AutoRoute(page: SplashScreenV1Route.page, initial: true),
     AutoRoute(page: PermissionOnboardingRoute.page, guards: [_authGuard, _duplicateGuard]),
     AutoRoute(page: LoginRoute.page, guards: [_duplicateGuard]),
+    // daipv
+    AutoRoute(page: LoginV1Route.page, guards: [_duplicateGuard]),
     AutoRoute(page: ChangePasswordRoute.page),
     AutoRoute(page: SearchRoute.page, guards: [_authGuard, _duplicateGuard], maintainState: false),
     CustomRoute(

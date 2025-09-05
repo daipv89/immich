@@ -1887,6 +1887,22 @@ class LoginRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [LoginV1Page]
+class LoginV1Route extends PageRouteInfo<void> {
+  const LoginV1Route({List<PageRouteInfo>? children})
+    : super(LoginV1Route.name, initialChildren: children);
+
+  static const String name = 'LoginV1Route';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const LoginV1Page();
+    },
+  );
+}
+
+/// generated route for
 /// [MainTimelinePage]
 class MainTimelineRoute extends PageRouteInfo<void> {
   const MainTimelineRoute({List<PageRouteInfo>? children})
@@ -2625,6 +2641,22 @@ class SplashScreenRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const SplashScreenPage();
+    },
+  );
+}
+
+/// generated route for
+/// [SplashScreenV1Page]
+class SplashScreenV1Route extends PageRouteInfo<void> {
+  const SplashScreenV1Route({List<PageRouteInfo>? children})
+    : super(SplashScreenV1Route.name, initialChildren: children);
+
+  static const String name = 'SplashScreenV1Route';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const SplashScreenV1Page();
     },
   );
 }
