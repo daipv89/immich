@@ -37,8 +37,8 @@ import 'package:openapi/api.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class LoginForm extends HookConsumerWidget {
-  LoginForm({super.key});
+class LoginFormV1 extends HookConsumerWidget {
+  LoginFormV1({super.key});
 
   final log = Logger('LoginForm');
 
@@ -46,10 +46,8 @@ class LoginForm extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final emailController = useTextEditingController.fromValue(TextEditingValue.empty);
     final passwordController = useTextEditingController.fromValue(TextEditingValue.empty);
-    final serverEndpointController = useTextEditingController.fromValue(TextEditingValue.empty);
     final emailFocusNode = useFocusNode();
     final passwordFocusNode = useFocusNode();
-    final serverEndpointFocusNode = useFocusNode();
     final isLoading = useState<bool>(false);
     final isLoadingServer = useState<bool>(false);
     final isOauthEnable = useState<bool>(false);
@@ -83,13 +81,15 @@ class LoginForm extends HookConsumerWidget {
 
     /// Fetch the server login credential and enables oAuth login if necessary
     /// Returns true if successful, false otherwise
-    Future<void> getServerAuthSettings() async {
-      final sanitizeServerUrl = sanitizeUrl(serverEndpointController.text);
+    Future<void> getServerAuthSettings(String baseUrl) async {
+      final sanitizeServerUrl = sanitizeUrl(baseUrl);
       final serverUrl = punycodeEncodeUrl(sanitizeServerUrl);
 
       // Guard empty URL
       if (serverUrl.isEmpty) {
-        ImmichToast.show(context: context, msg: "login_form_server_empty".tr(), toastType: ToastType.error);
+        if (context.mounted) {
+          ImmichToast.show(context: context, msg: "login_form_server_empty".tr(), toastType: ToastType.error);
+        }
       }
 
       try {
@@ -109,32 +109,38 @@ class LoginForm extends HookConsumerWidget {
 
         serverEndpoint.value = endpoint;
       } on ApiException catch (e) {
-        ImmichToast.show(
-          context: context,
-          msg: e.message ?? 'login_form_api_exception'.tr(),
-          toastType: ToastType.error,
-          gravity: ToastGravity.TOP,
-        );
+        if (context.mounted) {
+          ImmichToast.show(
+            context: context,
+            msg: e.message ?? 'login_form_api_exception'.tr(),
+            toastType: ToastType.error,
+            gravity: ToastGravity.TOP,
+          );
+        }
         isOauthEnable.value = false;
         isPasswordLoginEnable.value = true;
         isLoadingServer.value = false;
       } on HandshakeException {
-        ImmichToast.show(
-          context: context,
-          msg: 'login_form_handshake_exception'.tr(),
-          toastType: ToastType.error,
-          gravity: ToastGravity.TOP,
-        );
+        if (context.mounted) {
+          ImmichToast.show(
+            context: context,
+            msg: 'login_form_handshake_exception'.tr(),
+            toastType: ToastType.error,
+            gravity: ToastGravity.TOP,
+          );
+        }
         isOauthEnable.value = false;
         isPasswordLoginEnable.value = true;
         isLoadingServer.value = false;
       } catch (e) {
-        ImmichToast.show(
-          context: context,
-          msg: 'login_form_server_error'.tr(),
-          toastType: ToastType.error,
-          gravity: ToastGravity.TOP,
-        );
+        if (context.mounted) {
+          ImmichToast.show(
+            context: context,
+            msg: 'login_form_server_error'.tr(),
+            toastType: ToastType.error,
+            gravity: ToastGravity.TOP,
+          );
+        }
         isOauthEnable.value = false;
         isPasswordLoginEnable.value = true;
         isLoadingServer.value = false;
@@ -144,24 +150,13 @@ class LoginForm extends HookConsumerWidget {
     }
 
     useEffect(() {
-      final serverUrl = getServerUrl();
-      if (serverUrl != null) {
-        serverEndpointController.text = serverUrl;
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        print('daipv ok');
+        getServerAuthSettings('https://photo.bytecore.me');
+      });
+
       return null;
     }, []);
-
-    populateTestLoginInfo() {
-      emailController.text = 'demo@immich.app';
-      passwordController.text = 'demo';
-      serverEndpointController.text = 'https://demo.immich.app';
-    }
-
-    populateTestLoginInfo1() {
-      emailController.text = 'testuser@email.com';
-      passwordController.text = 'password';
-      serverEndpointController.text = 'http://10.1.15.216:2283/api';
-    }
 
     Future<void> handleSyncFlow() async {
       final backgroundManager = ref.read(backgroundSyncProvider);
@@ -245,7 +240,7 @@ class LoginForm extends HookConsumerWidget {
 
       try {
         oAuthServerUrl = await oAuthService.getOAuthServerUrl(
-          sanitizeUrl(serverEndpointController.text),
+          sanitizeUrl('https://photo.bytecore.me'),
           state,
           codeChallenge,
         );
@@ -324,54 +319,7 @@ class LoginForm extends HookConsumerWidget {
       const buttonRadius = 25.0;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ServerEndpointInput(
-            controller: serverEndpointController,
-            focusNode: serverEndpointFocusNode,
-            onSubmit: getServerAuthSettings,
-          ),
-          const SizedBox(height: 18),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(buttonRadius),
-                        bottomLeft: Radius.circular(buttonRadius),
-                      ),
-                    ),
-                  ),
-                  onPressed: () => context.pushRoute(const SettingsRoute()),
-                  icon: const Icon(Icons.settings_rounded),
-                  label: const Text(""),
-                ),
-              ),
-              const SizedBox(width: 1),
-              Expanded(
-                flex: 3,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(buttonRadius),
-                        bottomRight: Radius.circular(buttonRadius),
-                      ),
-                    ),
-                  ),
-                  onPressed: isLoadingServer.value ? null : getServerAuthSettings,
-                  icon: const Icon(Icons.arrow_forward_rounded),
-                  label: const Text('next', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)).tr(),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          if (isLoadingServer.value) const LoadingIcon(),
-        ],
+        children: [if (isLoadingServer.value) const LoadingIcon()],
       );
     }
 
@@ -402,11 +350,6 @@ class LoginForm extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             buildVersionCompatWarning(),
-            Text(
-              sanitizeUrl(serverEndpointController.text),
-              style: context.textTheme.displaySmall,
-              textAlign: TextAlign.center,
-            ),
             if (isPasswordLoginEnable.value) ...[
               const SizedBox(height: 18),
               EmailInput(
@@ -414,7 +357,7 @@ class LoginForm extends HookConsumerWidget {
                 focusNode: emailFocusNode,
                 onSubmit: passwordFocusNode.requestFocus,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
               PasswordInput(controller: passwordController, focusNode: passwordFocusNode, onSubmit: login),
             ],
 
@@ -443,12 +386,6 @@ class LoginForm extends HookConsumerWidget {
                     ],
                   ),
             if (!isOauthEnable.value && !isPasswordLoginEnable.value) Center(child: const Text('login_disabled').tr()),
-            const SizedBox(height: 12),
-            TextButton.icon(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => serverEndpoint.value = null,
-              label: const Text('back').tr(),
-            ),
           ],
         ),
       );
@@ -471,13 +408,9 @@ class LoginForm extends HookConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      GestureDetector(
-                        onDoubleTap: () => populateTestLoginInfo(),
-                        onLongPress: () => populateTestLoginInfo1(),
-                        child: RotationTransition(
-                          turns: logoAnimationController,
-                          child: const ImmichLogo(heroTag: 'logo'),
-                        ),
+                      RotationTransition(
+                        turns: logoAnimationController,
+                        child: const ImmichLogo(heroTag: 'logo'),
                       ),
                       const Padding(padding: EdgeInsets.only(top: 8.0, bottom: 16), child: ImmichTitleText()),
                     ],

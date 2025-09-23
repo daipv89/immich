@@ -112,7 +112,7 @@ class ImmichAppBarDialog extends HookConsumerWidget {
                   ref.read(backupProvider.notifier).cancelBackup();
                   ref.read(assetProvider.notifier).clearAllAssets();
                   ref.read(websocketProvider.notifier).disconnect();
-                  context.replaceRoute(const LoginRoute());
+                  context.replaceRoute(const LoginV1Route());
                 },
               );
             },

@@ -172,7 +172,7 @@ class ImmichAppState extends ConsumerState<ImmichApp> with WidgetsBindingObserve
     final deepLinkHandler = ref.read(deepLinkServiceProvider);
     final currentRouteName = ref.read(currentRouteNameProvider.notifier).state;
 
-    final isColdStart = currentRouteName == null || currentRouteName == SplashScreenRoute.name;
+    final isColdStart = currentRouteName == null || currentRouteName == SplashScreenV1Route.name;
 
     if (deepLink.uri.scheme == "immich") {
       final proposedRoute = await deepLinkHandler.handleScheme(deepLink, ref, isColdStart);

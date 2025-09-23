@@ -45,15 +45,13 @@ class ApiService implements Authentication {
       setEndpoint(endpoint);
     }
   }
-  String? _accessToken;
+
   final _log = Logger("ApiService");
 
   setEndpoint(String endpoint) {
     _apiClient = ApiClient(basePath: endpoint, authentication: this);
     _setUserAgentHeader();
-    if (_accessToken != null) {
-      setAccessToken(_accessToken!);
-    }
+
     usersApi = UsersApi(_apiClient);
     authenticationApi = AuthenticationApi(_apiClient);
     oAuthApi = OAuthApi(_apiClient);
@@ -162,7 +160,6 @@ class ApiService implements Authentication {
   }
 
   Future<void> setAccessToken(String accessToken) async {
-    _accessToken = accessToken;
     await Store.put(StoreKey.accessToken, accessToken);
   }
 
